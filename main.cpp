@@ -3,6 +3,7 @@
 // later
 //  if explorer crashes, will the icon disappear
 //  get a proper icon
+// ini loading
 
 //next steps:
 //  remove ghost icon
