@@ -11,6 +11,8 @@ The default file to save notes in is notes.txt. If you want to save your notes i
 
 Here's what it looks like:
 ![App window screenshot](/img/app.png?raw=true "The DataAggr window")
+
+And here's what the notes.txt file looks like:
 ![Notes text file screenshot](/img/notes.png?raw=true "Notes saved to notes.txt")
 
 To have automatic backups of the notes, I would recommend placing the main.exe and notes.txt files in DropBox or something similar.
