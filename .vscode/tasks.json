@@ -10,8 +10,6 @@
 				"/EHsc",
 				"/nologo",
 				"/Fe:",
-				//"/Fobin\\",
-				//"/Fabin\\",
 				"${fileDirname}\\bin\\${fileBasenameNoExtension}.exe",
 				"${file}",
 				"user32.lib",
