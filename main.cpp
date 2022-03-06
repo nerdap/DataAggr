@@ -24,6 +24,8 @@
 #include <tchar.h>
 #include <stdio.h>
 
+#include <chrono>
+#include <ctime>
 #include <fstream>
 #include <regex>
 #include <string>
@@ -36,6 +38,7 @@ static const int WINDOW_HEIGHT = 200;
 
 // Default file (make loadable from config)
 static std::string saveFile("notes.txt");
+static std::string timestampFormat("%A, %d %B %G, %H:%M");
 
 //	ID constants
 static const int ID_EDIT = 1;
@@ -356,107 +359,12 @@ void SaveNotes(const std::string& filename, const std::string& text)
 	ofs << "\n\n" << GetTimeStamp() << '\n' << text;
 }
 
-//	Format: time PM/AM, Day, Date, Month, Year
 std::string GetTimeStamp()
 {
-	SYSTEMTIME st;
-	GetLocalTime(&st);
-
-	std::stringstream timestamp;
-
-	// First for the time
-	if(st.wHour == 0)
-		timestamp << "12" << ":" << st.wMinute << " AM";
-	else if(st.wHour < 12)
-		timestamp << st.wHour << ":" << st.wMinute << " AM";
-	else if(st.wHour == 12)
-		timestamp << "12" << ":" << st.wMinute << " PM";
-	else
-		timestamp << st.wHour << ":" << st.wMinute << " PM";
-
-	timestamp << ", ";
-
-	// Now for the day
-	switch(st.wDayOfWeek)
-	{
-	case 0:
-		timestamp << "Sunday";
-		break;
-	case 1:
-		timestamp << "Monday";
-		break;
-	case 2:
-		timestamp << "Tuesday";
-		break;
-	case 3:
-		timestamp << "Wednesday";
-		break;
-	case 4:
-		timestamp << "Thursday";
-		break;
-	case 5:
-		timestamp << "Friday";
-		break;
-	case 6:
-		timestamp << "Saturday";
-		break;
-	}
-
-	timestamp << " ";
-
-	// Now for the day
-	timestamp << st.wDay;
-
-	timestamp << " ";
-
-	// Month
-	switch(st.wMonth)
-	{
-	case 1:
-		timestamp << "January";
-		break;
-	case 2:
-		timestamp << "February";
-		break;
-	case 3:
-		timestamp << "March";
-		break;
-	case 4:
-		timestamp << "April";
-		break;
-	case 5:
-		timestamp << "May";
-		break;
-	case 6:
-		timestamp << "June";
-		break;
-	case 7:
-		timestamp << "July";
-		break;
-	case 8:
-		timestamp << "August";
-		break;
-	case 9:
-		timestamp << "September";
-		break;
-	case 10:
-		timestamp << "October";
-		break;
-	case 11:
-		timestamp << "November";
-		break;
-	case 12:
-		timestamp << "December";
-		break;
-	}
-
-	timestamp << " ";
-
-	// Year
-	timestamp << st.wYear;
-
-	return timestamp.str();
+	auto now = std::chrono::system_clock::now();
+	auto rawtime = std::chrono::system_clock::to_time_t(now);
+	auto timeinfo = std::localtime(&rawtime);
+	char timeStr[100];
+	std::strftime(timeStr, 100, timestampFormat.c_str(), timeinfo);
+	return timeStr;
 }
-
-// boost::wregex
-// utf-8 file store (but text files should be readable by notepad)
