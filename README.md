@@ -10,10 +10,10 @@ The default file to save notes in is notes.txt. If you want to save your notes i
 :file(filename);Notes go here
 
 Here's what it looks like:
-![App window screenshot](/img/app.png?raw=true "The DataAggr window")
+![App window screenshot](/img/app.png?raw=true)
 
 And here's what the notes.txt file looks like:
-![Notes text file screenshot](/img/notes.png?raw=true "Notes saved to notes.txt")
+![Notes text file screenshot](/img/notes.png?raw=true)
 
 To have automatic backups of the notes, I would recommend placing the main.exe and notes.txt files in DropBox or something similar.
 
@@ -35,3 +35,7 @@ Here is the simplest way to build from source:
 I'm a Software Engineer based out of London. I built DataAggr back in 2011, when I was in college and needed a fast and easy way to take notes.
 
 The code lay untouched for over ten years until 2022, when I revived this project. Shockingly, the binary that I'd built back in 2011, probably on Windows Vista, still worked perfectly on Windows 10 :) Who says Microsoft doesn't care about backwards compatibility?
+
+### Credits
+
+[Document icons created by Freepik - Flaticon](https://www.flaticon.com/free-icons/document)

@@ -1,0 +1,4 @@
+#include "resource.h"
+
+IDI_ICON ICON "img/icon_lrg.ico"
+IDI_ICON_SM ICON "img/icon.ico"

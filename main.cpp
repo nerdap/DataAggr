@@ -23,6 +23,7 @@
 #include <ShellAPI.h>
 #include <tchar.h>
 #include <stdio.h>
+#include <winuser.h>
 
 #include <chrono>
 #include <ctime>
@@ -31,6 +32,8 @@
 #include <string>
 #include <sstream>
 #include <cassert>
+
+#include "resource.h"
 
 //	Window dimensions (make loadable from config)
 static const int WINDOW_WIDTH = 340;
@@ -105,13 +108,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 	wndclass.cbClsExtra = 0;
 	wndclass.cbWndExtra = 0;
 	wndclass.hInstance = hInstance;
-	wndclass.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
+	wndclass.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON));
 	wndclass.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	wndclass.hbrBackground = (HBRUSH) GetStockObject(WHITE_BRUSH);
 	wndclass.lpszMenuName = nullptr;
 	wndclass.lpszClassName = szAppName;
 	wndclass.cbSize = sizeof(WNDCLASSEX);
-	wndclass.hIconSm = LoadIcon(nullptr, IDI_APPLICATION);
+	wndclass.hIconSm = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON_SM));
 
 	if(!RegisterClassEx(&wndclass))
 	{
@@ -242,14 +245,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 void InitTrayIconData(HWND hwnd)
 {
+	HINSTANCE hInstance = (HINSTANCE)GetWindowLong(hwnd, GWL_HINSTANCE);
 	memset(&nid, 0, sizeof(NOTIFYICONDATA));
-	
 	nid.cbSize = sizeof(NOTIFYICONDATA);
 	nid.hWnd = hwnd;
 	nid.uID = ID_TRAYICON;
 	nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
 	nid.uCallbackMessage = MSG_TRAYICON;
-	nid.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
+	nid.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON));
 	//nid.uVersion = NOTIFYICON_VERSION_4;
 	lstrcpy(nid.szTip, TEXT("Data Aggregator in-dev version"));
 }

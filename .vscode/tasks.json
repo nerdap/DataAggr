@@ -2,9 +2,18 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
+			"type": "process",
+			"label": "Build Resources",
+			"command": "rc.exe",
+			"args": [
+				"${fileDirname}\\resources.rc"
+			],
+		},
+		{
 			"type": "cppbuild",
 			"label": "C/C++: cl.exe build active file",
 			"command": "cl.exe",
+			"dependsOn": ["Build Resources"],
 			"args": [
 				"/Zi",
 				"/EHsc",
@@ -12,11 +21,10 @@
 				"/Fe:",
 				"${fileDirname}\\bin\\${fileBasenameNoExtension}.exe",
 				"${file}",
+				"${fileDirname}\\resources.res",
 				"user32.lib",
 				"gdi32.lib",
 				"shell32.lib",
-				"/link",
-				"/out:bin\\${fileBasenameNoExtension}.exe"
 			],
 			"options": {
 				"cwd": "${fileDirname}"
