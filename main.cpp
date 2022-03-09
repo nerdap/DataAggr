@@ -244,6 +244,7 @@ void ToggleWindowState() {
 
 		// parse and save the text
 		ParseAndSave(text);
+		delete[] text;
 
 		// empty the control
 		SetWindowText(hwndEdit, TEXT(""));
@@ -329,9 +330,6 @@ void ParseAndSave(LPTSTR text)
 			SaveNotes(match[2].str(), to_store);
 		}
 	}
-
-	delete[] text;
-	text = nullptr;
 }
 
 void SaveNotes(const std::string& filename, const std::string& text) {
