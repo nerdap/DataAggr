@@ -82,12 +82,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 		return 0;
 	}
 
-	//	Get the screen's dimensions
-	int cx = GetSystemMetrics(SM_CXSCREEN);
-	//int cy = GetSystemMetrics(SM_CYSCREEN);
-
 	//	Window should appear at the top right
-	int xWindow = cx - WINDOW_WIDTH;
+	int xWindow = GetSystemMetrics(SM_CXSCREEN) - WINDOW_WIDTH;
 	int yWindow = 0;
 
 	hwnd = CreateWindowEx(
@@ -251,7 +247,7 @@ void ToggleWindowState() {
 	}
 	else {
 		ShowWindow(hwnd, SW_SHOW);
-		SetActiveWindow(hwnd);
+		SetForegroundWindow(hwnd);
 		assert(SetFocus(hwndEdit));
 	}
 	windowVisible = !windowVisible;
