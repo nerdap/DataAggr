@@ -20,14 +20,9 @@
 #include <sstream>
 #include <cassert>
 
+#include "config.h"
 #include "resource.h"
 
-//	Window dimensions (make loadable from config)
-static const int WINDOW_WIDTH = 340;
-static const int WINDOW_HEIGHT = 200;
-
-// Default file (make loadable from config)
-static std::string saveFile("notes.txt");
 static std::string timestampFormat("%A, %d %B %G, %H:%M");
 
 //	ID constants
@@ -35,10 +30,6 @@ static const int ID_EDIT = 1;
 static const int ID_HOTKEY = 2;
 static const int ID_TRAYICON = 300;
 static const int MSG_TRAYICON = WM_USER + 1;
-
-//	Hotkey constants (make loadable from config)
-static const TCHAR hotkey_char = TEXT(' ');
-static const UINT hotkey_modifiers = MOD_CONTROL;
 
 //	Tray menu item IDs
 static const int IDTRAY_EXIT_ITEM = 500;
@@ -51,6 +42,8 @@ HWND hwnd = nullptr;
 HWND hwndEdit = nullptr;
 HMENU hTrayMenu = nullptr;
 NOTIFYICONDATA nid;
+
+NotesConfig notesConfig = NotesConfig("config.config");
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 void InitTrayIconData(HWND);
@@ -83,7 +76,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 	}
 
 	//	Window should appear at the top right
-	int xWindow = GetSystemMetrics(SM_CXSCREEN) - WINDOW_WIDTH;
+	int xWindow = GetSystemMetrics(SM_CXSCREEN) - notesConfig.getWindowWidth();
 	int yWindow = 0;
 
 	hwnd = CreateWindowEx(
@@ -93,8 +86,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 		WS_POPUP,
 		xWindow,
 		yWindow,
-		WINDOW_WIDTH,
-		WINDOW_HEIGHT,
+		notesConfig.getWindowWidth(),
+		notesConfig.getWindowHeight(),
 		nullptr,
 		nullptr,
 		hInstance,
@@ -102,7 +95,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 	SetLayeredWindowAttributes(hwnd, 0, BYTE(255 * 0.8), LWA_ALPHA);	//	Make window translucent
 	ShowWindow(hwnd, SW_HIDE);	// Window is hidden on startup
 	UpdateWindow(hwnd);
-	RegisterHotKey(hwnd, ID_HOTKEY, hotkey_modifiers, hotkey_char);
+	RegisterHotKey(
+		hwnd,
+		ID_HOTKEY,
+		notesConfig.getHotkeyMod(),
+		TEXT(notesConfig.getHotkeyBase()));
 	
 	while(GetMessage(&msg, nullptr, 0, 0)) {
 		//	We process VK_ESCAPE before Translating the message so it isn't
@@ -170,8 +167,8 @@ LRESULT CALLBACK WndProc(
 
 	case WM_HOTKEY:
 		if(
-			LOWORD(lParam) == hotkey_modifiers &&
-			HIWORD(lParam) == hotkey_char) {
+			LOWORD(lParam) == notesConfig.getHotkeyMod() &&
+			HIWORD(lParam) == TEXT(notesConfig.getHotkeyBase())) {
 			ToggleWindowState();
 		}
 		return 0;
@@ -293,7 +290,7 @@ void ParseAndSave(LPTSTR text)
 	//	If there is no semicolon, then save the text as is
 	// (wont work if text has a semicolon)
 	if(!std::regex_search(str, res, text_regex)) {
-		SaveNotes(saveFile, str);
+		SaveNotes(notesConfig.getNotesFileName(), str);
 		return;
 	}
 	// res[1] gets the first capture

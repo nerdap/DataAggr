@@ -1,5 +1,6 @@
 bin/*
 !bin/main.exe
+!bin/config.config
 *.obj
 *.pdb
 *.res
