@@ -23,18 +23,15 @@
 #include "config.h"
 #include "resource.h"
 
-static std::string timestampFormat("%A, %d %B %G, %H:%M");
-
 //	ID constants
 static const int ID_EDIT = 1;
 static const int ID_HOTKEY = 2;
 static const int ID_TRAYICON = 300;
 static const int MSG_TRAYICON = WM_USER + 1;
-
-//	Tray menu item IDs
 static const int IDTRAY_EXIT_ITEM = 500;
 
 static const TCHAR szAppName[] = TEXT("data-aggregator");
+static const std::string timestampFormat("%A, %d %B %G, %H:%M");
 
 static bool windowVisible = false;
 
@@ -52,10 +49,13 @@ void ToggleWindowState();
 void SaveNotes(const std::string&, const std::string&);
 std::string GetTimeStamp();
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine, int iCmdShow) {
-	MSG msg;
-	WNDCLASSEX wndclass;
+int WINAPI WinMain(
+	HINSTANCE hInstance,
+	HINSTANCE hPrevInstance,
+	PSTR szCmdLine,
+	int iCmdShow) {
 
+	WNDCLASSEX wndclass;
 	wndclass.style = CS_HREDRAW | CS_VREDRAW;
 	wndclass.lpfnWndProc = WndProc;
 	wndclass.cbClsExtra = 0;
@@ -69,9 +69,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 	wndclass.cbSize = sizeof(WNDCLASSEX);
 	wndclass.hIconSm = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON_SM));
 
-	if(!RegisterClassEx(&wndclass))
-	{
-		MessageBox(nullptr, TEXT("WndClass Registration failed!"), szAppName, MB_ICONERROR);
+	if(!RegisterClassEx(&wndclass)) {
+		MessageBox(
+			nullptr,
+			TEXT("WndClass Registration failed!"),
+			szAppName,
+			MB_ICONERROR);
 		return 0;
 	}
 
@@ -92,8 +95,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 		nullptr,
 		hInstance,
 		nullptr);
-	SetLayeredWindowAttributes(hwnd, 0, BYTE(255 * 0.8), LWA_ALPHA);	//	Make window translucent
-	ShowWindow(hwnd, SW_HIDE);	// Window is hidden on startup
+
+	//	Make window translucent
+	SetLayeredWindowAttributes(hwnd, 0, BYTE(255 * 0.8), LWA_ALPHA);
+	// Window is hidden on startup
+	ShowWindow(hwnd, SW_HIDE);
 	UpdateWindow(hwnd);
 	RegisterHotKey(
 		hwnd,
@@ -101,13 +107,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 		notesConfig.getHotkeyMod(),
 		TEXT(notesConfig.getHotkeyBase()));
 	
+	MSG msg;
 	while(GetMessage(&msg, nullptr, 0, 0)) {
-		//	We process VK_ESCAPE before Translating the message so it isn't
-		// handled the Edit control instead
-		if(msg.message == WM_KEYDOWN) {
-			if(GetAsyncKeyState(VK_ESCAPE)) {
-				SendMessage(hwnd, WM_CLOSE, 0, 0);
-			}
+		// We handle VK_ESCAPE before translating the message so it isn't
+		// handled by the edit control instead
+		if(msg.message == WM_KEYDOWN && GetAsyncKeyState(VK_ESCAPE)) {
+			SendMessage(hwnd, WM_CLOSE, 0, 0);
 		}
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
@@ -173,7 +178,6 @@ LRESULT CALLBACK WndProc(
 		}
 		return 0;
 
-	// We're not checking the id because we've only got one icon
 	case MSG_TRAYICON:
 		if(lParam == WM_LBUTTONUP) {
 			ToggleWindowState();
@@ -219,11 +223,11 @@ void InitTrayIconData(HWND hwnd) {
 	nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
 	nid.uCallbackMessage = MSG_TRAYICON;
 	nid.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON));
-	lstrcpy(nid.szTip, TEXT("Data Aggregator in-dev version"));
+	lstrcpy(nid.szTip, TEXT("Data Aggregator"));
 }
 
-// For some odd reason, when the window is made visible by clicking on the tray icon,
-// it doesn't capture keyboard input until I click inside the window.
+// For some odd reason, when the window is made visible by clicking on the tray
+// icon, it doesn't capture keyboard input until I click inside the window.
 void ToggleWindowState() {
 	if(windowVisible) {
 		ShowWindow(hwnd, SW_HIDE);
@@ -252,32 +256,14 @@ void ToggleWindowState() {
 
 // Note entry format:
 // options start with a colon and end with a semicolon,
-// indicate their value inside parentheses, e.g, :append("myfile.txt");Notes Notes Notes
-// if there is no colon in the beginning of a note, there are no options, save notes to default.txt
+// indicate their value inside parentheses
+// e.g, :file(myfile.txt);Notes Notes Notes
+// if there is no colon in the beginning of a note, there are no
+// options, save notes to default
 // Supported options:
-// file(myfile.txt)
-// asis() - everything after this option is taken to be plain text (no more parsing)
-// possibly the ability to save path specified by the arg passed to file(), save in program folder for now, ini file folder later on
-// Save with timestamp
+//   - file(myfile.txt)
 
-void ParseAndSave(LPTSTR text)
-{
-	// one possiblity is to handle each options separately, like so:
-	// :file\(.+\) (no grabbing yet)
-	// ;.+ (text, no grabbing yet)
-
-	// this matches one option
-	// :.+\)|:.+;
-	// this does it properly (apparently)
-	// :[^:]+\)|:.+;
-	// this matches all the options and the text (no, it doesn't)
-	// :[^:]+\)|:[^:]+;.+
-	// with grabbing
-	// :([^:]+\))|:([^:]+);
-	// grab text separately
-	// ;.+
-
-	//	If there is no text, return
+void ParseAndSave(LPTSTR text) {
 	if(lstrlen(text) == 0) {
 		return;
 	}
@@ -287,14 +273,14 @@ void ParseAndSave(LPTSTR text)
 
 	// First we get the text to be stored
 	std::regex text_regex(";(.+)");
-	//	If there is no semicolon, then save the text as is
-	// (wont work if text has a semicolon)
+	// If there is no semicolon, then save the text as is
+	// TODO: handle the case where the note has semicolons
 	if(!std::regex_search(str, res, text_regex)) {
 		SaveNotes(notesConfig.getNotesFileName(), str);
 		return;
 	}
 	// res[1] gets the first capture
-	std::string to_store = res[1].str();		
+	std::string to_store = res[1].str();
 	str = std::regex_replace(
 		str,
 		text_regex,
